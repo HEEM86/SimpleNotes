@@ -1,10 +1,11 @@
 
 var express = require("express");
 var path = require("path");
-var fs = require('fs')
-var notesInfo = require('./db/db.json')
-const { v4: uuidv4 } = require('uuid');
+var fs = require('fs');
+var notesInfo = require('./db/db.json');
 const { networkInterfaces } = require("os");
+
+const { v4: uuidv4 } = require('uuid');
 
 // Sets up the Express App
 // =============================================================
@@ -24,8 +25,8 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.get('/add', function(req, res) {
-  res.sendFile(path.join(__dirname, "notes.html"));
+app.get('/notes', function(req, res) {
+  res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
 app.get('/api/notes', function(req, res) {
@@ -33,31 +34,28 @@ app.get('/api/notes', function(req, res) {
 });
 
 app.post('/api/notes', function(req, res) {
-  var notesData = req.body;
+  var newNote = req.body;
 
   newNote.id = uuidv4();
 
   notesInfo.push(newNote)
 
-  fs.writeFile("./db/db.json", JSON.stringify(notesInfo), function finished(
-    err
-   ) {
+  fs.writeFile("./db/db.json", JSON.stringify(notesInfo), function finished(err) {
      console.log("good to go");
      res.json("Success!");
 });
 
 
-  app.delete("/api/notes.:id", function (req, res) {
+  app.delete("/api/notes/:id", function (req, res) {
     const id = req.params.id;
 
-    for (i = 0; i< note.length; i++)
+    for (i = 0; i < notesInfo.length; i++)
     if (notesInfo[i].id === id) {
       notesInfo.splice(i, 1);
     }
 
-    fs.writeFile("./db/db.json", JSON.stringify(notesInfo), function finished(
-     err
-    ) {
+    fs.writeFile("./db/db.json", JSON.stringify(notesInfo), function finished(err) {
+      if (err){throw err};
       console.log("good to go");
       res.json("Success!");
 });
@@ -66,11 +64,10 @@ app.post('/api/notes', function(req, res) {
 
 
 
-
+});
 
 // Starts the server to begin listening
 // =============================================================
 app.listen(PORT, function() {
     console.log("App listening on PORT " + PORT);
   });
-})
